@@ -9,22 +9,29 @@ import (
 
 func Example() {
 
-	d := New[string](3)
+	d, err := New[string](3)
+	if err != nil {
+		panic(err)
+	}
 
-	fmt.Println(d.Vertices, d.Values)
-	// Output: <nil> [[0 0 0] [0 0 0] [0 0 0]]
+	fmt.Println(d)
+	// Output:
+	// 0
+	// 0 0
+	// 0 0 0
 
 }
 
 func TestNewMatrix(t *testing.T) {
 
-	d := New[string](3)
+	d, _ := New[string](3)
+
 	assert.Equal(t, 3, len(d.Values))
 	assert.Equal(t, 3, len(d.Values[0]))
 }
 
 func TestUpdate(t *testing.T) {
-	d := New[string](3)
+	d, _ := New[string](3)
 	d.Update(func(i, j int) float64 { return 1.0 })
 
 	assert.Equal(t, 1.0, d.Values[0][1])
@@ -36,7 +43,7 @@ func TestUpdate(t *testing.T) {
 }
 
 func TestSet(t *testing.T) {
-	d := New[string](3)
+	d, _ := New[string](3)
 
 	d.Set(0, 2, 2.0)
 	assert.Equal(t, 2.0, d.Values[0][2])

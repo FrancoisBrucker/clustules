@@ -18,6 +18,6 @@ func main() {
 		panic(err)
 	}
 
-	fmt.Println(d.Vertices, d.Values)
+	fmt.Println(d)
 
 }

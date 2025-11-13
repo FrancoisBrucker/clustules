@@ -1,6 +1,8 @@
 package diss
 
 import (
+	"errors"
+	"fmt"
 	"strconv"
 	"strings"
 
@@ -14,11 +16,55 @@ type Diss[T vertices.Vertex] struct {
 	Values   Matrix
 }
 
-func New[T vertices.Vertex](n int) Diss[T] {
-	return Diss[T]{
-		nil,
-		NewMatrix(n),
+func (d Diss[T]) String() string {
+
+	labels := make([]string, len(d.Values))
+	sizeLabel := 0
+	sizeValue := 0
+
+	for i := 0; i < len(d.Values); i++ {
+		if d.Vertices != nil {
+			sizeLabel = max(sizeLabel, len(fmt.Sprint(d.Vertices.Label(i))))
+		}
+		for j := 0; j <= i; j++ {
+			sizeValue = max(sizeValue, len(fmt.Sprint(d.Values[i][j])))
+		}
 	}
+	for i := 0; i < len(d.Values); i++ {
+		if d.Vertices != nil {
+			labels[i] = fmt.Sprintf("%-*s", sizeLabel+1, fmt.Sprint(d.Vertices.Label(i)))
+		} else {
+			labels[i] = ""
+		}
+		labels[i] += fmt.Sprintf("%*s", sizeValue, fmt.Sprint(d.Values[i][0]))
+		for j := 1; j <= i; j++ {
+			labels[i] += fmt.Sprintf("%*s", sizeValue+1, fmt.Sprint(d.Values[i][j]))
+		}
+	}
+
+	return strings.Join(labels, "\n")
+}
+
+func New[T vertices.Vertex](n int, labels ...T) (Diss[T], error) {
+
+	if labels != nil && len(labels) != n {
+		return Diss[T]{}, errors.New("labels size do no equals n")
+	}
+
+	var vertexPtr *vertices.Vertices[T] = nil
+	if labels != nil {
+		vertex, err := vertices.New(labels)
+		vertexPtr = &vertex
+
+		if err != nil {
+			return Diss[T]{}, err
+		}
+	}
+
+	return Diss[T]{
+		vertexPtr,
+		NewMatrix(n),
+	}, nil
 }
 
 func NewMatrix(n int) Matrix {
