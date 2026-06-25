@@ -1,4 +1,4 @@
-package vertices
+package correspondance
 
 import (
 	"testing"

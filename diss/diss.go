@@ -1,73 +1,21 @@
 package diss
 
 import (
-	"errors"
 	"fmt"
 	"strconv"
 	"strings"
 
-	"github.com/FrancoisBrucker/clustules/vertices"
+	"github.com/FrancoisBrucker/clustules/correspondance"
 )
 
-type Matrix [][]float64
+type Dissimilarity [][]float64
 
-type Diss[T vertices.Vertex] struct {
-	Vertices *vertices.Vertices[T]
-	Values   Matrix
-}
+// type Dissimilarity[T correspondance.Element] struct {
+// 	Correspondance *correspondance.Correspondance[T]
+// 	Values         Matrix
+// }
 
-func (d Diss[T]) String() string {
-
-	labels := make([]string, len(d.Values))
-	sizeLabel := 0
-	sizeValue := 0
-
-	for i := 0; i < len(d.Values); i++ {
-		if d.Vertices != nil {
-			sizeLabel = max(sizeLabel, len(fmt.Sprint(d.Vertices.Label(i))))
-		}
-		for j := 0; j <= i; j++ {
-			sizeValue = max(sizeValue, len(fmt.Sprint(d.Values[i][j])))
-		}
-	}
-	for i := 0; i < len(d.Values); i++ {
-		if d.Vertices != nil {
-			labels[i] = fmt.Sprintf("%-*s", sizeLabel+1, fmt.Sprint(d.Vertices.Label(i)))
-		} else {
-			labels[i] = ""
-		}
-		labels[i] += fmt.Sprintf("%*s", sizeValue, fmt.Sprint(d.Values[i][0]))
-		for j := 1; j <= i; j++ {
-			labels[i] += fmt.Sprintf("%*s", sizeValue+1, fmt.Sprint(d.Values[i][j]))
-		}
-	}
-
-	return strings.Join(labels, "\n")
-}
-
-func New[T vertices.Vertex](n int, labels ...T) (Diss[T], error) {
-
-	if labels != nil && len(labels) != n {
-		return Diss[T]{}, errors.New("labels size do no equals n")
-	}
-
-	var vertexPtr *vertices.Vertices[T] = nil
-	if labels != nil {
-		vertex, err := vertices.New(labels)
-		vertexPtr = &vertex
-
-		if err != nil {
-			return Diss[T]{}, err
-		}
-	}
-
-	return Diss[T]{
-		vertexPtr,
-		NewMatrix(n),
-	}, nil
-}
-
-func NewMatrix(n int) Matrix {
+func New(n int) Dissimilarity {
 
 	m := make([][]float64, n)
 
@@ -82,19 +30,53 @@ func NewMatrix(n int) Matrix {
 
 }
 
-func (m *Matrix) Set(i, j int, v float64) {
+func (d Dissimilarity) String() string {
+
+	labels := make([]string, len(d))
+
+	for i := 0; i < len(d); i++ {
+		labels[i] = fmt.Sprint(i)
+	}
+
+	corresp, _ := correspondance.New(labels)
+
+	return StringWithCorrespondance(d, corresp)
+}
+
+func StringWithCorrespondance[T correspondance.Element](d Dissimilarity, corresp correspondance.Correspondance[T]) string {
+
+	labels := make([]string, len(d))
+	sizeLabel := 0
+	sizeValue := 0
+
+	for i := 0; i < len(d); i++ {
+
+		sizeLabel = max(sizeLabel, len(fmt.Sprint(corresp.Label(i))))
+
+		for j := 0; j <= i; j++ {
+			sizeValue = max(sizeValue, len(fmt.Sprint(d[i][j])))
+		}
+	}
+	for i := 0; i < len(d); i++ {
+
+		labels[i] = fmt.Sprintf("%-*s", sizeLabel+1, fmt.Sprint(corresp.Label(i)))
+
+		labels[i] += fmt.Sprintf("%*s", sizeValue, fmt.Sprint(d[i][0]))
+		for j := 1; j <= i; j++ {
+			labels[i] += fmt.Sprintf("%*s", sizeValue+1, fmt.Sprint(d[i][j]))
+		}
+	}
+
+	return strings.Join(labels, "\n")
+}
+
+func (m *Dissimilarity) Set(i, j int, v float64) {
 	(*m)[i][j] = v
 	(*m)[j][i] = v
 
 }
 
-func (d *Diss[T]) Set(i, j int, v float64) {
-	(d.Values)[i][j] = v
-	(d.Values)[j][i] = v
-
-}
-
-func (m *Matrix) Update(r func(i, j int) float64) {
+func (m *Dissimilarity) Update(r func(i, j int) float64) {
 
 	for i := 0; i < len(*m); i++ {
 		for j := i + 1; j < len(*m); j++ {
@@ -103,17 +85,14 @@ func (m *Matrix) Update(r func(i, j int) float64) {
 	}
 }
 
-func (d *Diss[T]) Update(r func(i, j int) float64) {
+func NewFromString(data string) (Dissimilarity, correspondance.Correspondance[string], error) {
 
-	d.Values.Update(r)
-}
-
-func NewFromString(data string) (Diss[string], error) {
 	tokens := Tokenize(string(data))
 
 	kind := matrixType(tokens)
 
-	var labelsPtr *vertices.Vertices[string]
+	var labels correspondance.Correspondance[string]
+	var err error
 
 	if kind%2 == 1 {
 		v := make([]string, 0, len(tokens))
@@ -123,23 +102,15 @@ func NewFromString(data string) (Diss[string], error) {
 
 		}
 
-		labels, err := vertices.New(v)
-		labelsPtr = &labels
+		labels, err = correspondance.New(v)
 
 		if err != nil {
-			return Diss[string]{}, err
+			return Dissimilarity{}, correspondance.Correspondance[string]{}, err
 		}
 		kind -= 1
 	}
 
-	d := Diss[string]{
-		labelsPtr,
-		NewMatrix(len(tokens)),
-	}
-
-	for i := 0; i < len(tokens); i++ {
-		d.Values[i] = make([]float64, len(tokens))
-	}
+	d := New(len(tokens))
 
 	var f func(i, j int) (float64, error)
 
@@ -152,17 +123,17 @@ func NewFromString(data string) (Diss[string], error) {
 		f = func(i, j int) (float64, error) { return strconv.ParseFloat(tokens[i][j], 64) }
 	}
 
-	for i := 0; i < len(d.Values); i++ {
-		for j := i + 1; j < len(d.Values); j++ {
+	for i := 0; i < len(d); i++ {
+		for j := i + 1; j < len(d); j++ {
 			v, err := f(i, j)
 			if err != nil {
-				return Diss[string]{}, err
+				return Dissimilarity{}, correspondance.Correspondance[string]{}, err
 			}
 
 			d.Set(i, j, v)
 		}
 	}
-	return d, nil
+	return d, labels, nil
 }
 
 func Tokenize(data string) [][]string {

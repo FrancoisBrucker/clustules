@@ -9,45 +9,42 @@ import (
 
 func Example() {
 
-	d, err := New[string](3)
-	if err != nil {
-		panic(err)
-	}
+	d := New(3)
 
 	fmt.Println(d)
 	// Output:
-	// 0
 	// 0 0
-	// 0 0 0
+	// 1 0 0
+	// 2 0 0 0
 
 }
 
 func TestNewMatrix(t *testing.T) {
 
-	d, _ := New[string](3)
+	d := New(3)
 
-	assert.Equal(t, 3, len(d.Values))
-	assert.Equal(t, 3, len(d.Values[0]))
+	assert.Equal(t, 3, len(d))
+	assert.Equal(t, 3, len(d[0]))
 }
 
 func TestUpdate(t *testing.T) {
-	d, _ := New[string](3)
+	d := New(3)
 	d.Update(func(i, j int) float64 { return 1.0 })
 
-	assert.Equal(t, 1.0, d.Values[0][1])
-	assert.Equal(t, 1.0, d.Values[0][2])
-	assert.Equal(t, 1.0, d.Values[1][2])
+	assert.Equal(t, 1.0, d[0][1])
+	assert.Equal(t, 1.0, d[0][2])
+	assert.Equal(t, 1.0, d[1][2])
 
-	assert.Equal(t, 1.0, d.Values[2][1])
+	assert.Equal(t, 1.0, d[2][1])
 
 }
 
 func TestSet(t *testing.T) {
-	d, _ := New[string](3)
+	d := New(3)
 
 	d.Set(0, 2, 2.0)
-	assert.Equal(t, 2.0, d.Values[0][2])
-	assert.Equal(t, 2.0, d.Values[2][0])
+	assert.Equal(t, 2.0, d[0][2])
+	assert.Equal(t, 2.0, d[2][0])
 
 }
 
@@ -67,25 +64,24 @@ func TestMatrixType(t *testing.T) {
 }
 
 func TestNewFromString(t *testing.T) {
-	d, err := NewFromString("0\n 1 0\n")
+	d, labels, err := NewFromString("0\n 1 0\n")
 	assert.Nil(t, err)
-	assert.Nil(t, d.Vertices)
-	assert.Equal(t, Matrix{{0.0, 1.0}, {1.0, 0.0}}, d.Values)
+	assert.Equal(t, Dissimilarity{{0.0, 1.0}, {1.0, 0.0}}, d)
 
-	d, err = NewFromString("l1 0\nl2 1 0\n")
+	d, labels, err = NewFromString("l1 0\nl2 1 0\n")
 	assert.Nil(t, err)
-	assert.Equal(t, "l2", d.Vertices.Label(1))
-	assert.Equal(t, Matrix{{0.0, 1.0}, {1.0, 0.0}}, d.Values)
+	assert.Equal(t, "l2", labels.Label(1))
+	assert.Equal(t, Dissimilarity{{0.0, 1.0}, {1.0, 0.0}}, d)
 
-	d, err = NewFromString("l1 0 1\nl2 0\n")
+	d, labels, err = NewFromString("l1 0 1\nl2 0\n")
 	assert.Nil(t, err)
-	assert.Equal(t, 0, d.Vertices.Index("l1"))
-	assert.Equal(t, Matrix{{0.0, 1.0}, {1.0, 0.0}}, d.Values)
+	assert.Equal(t, 0, labels.Index("l1"))
+	assert.Equal(t, Dissimilarity{{0.0, 1.0}, {1.0, 0.0}}, d)
 
-	d, err = NewFromString("l1 0 1\nl2 1 0\n")
+	d, labels, err = NewFromString("l1 0 1\nl2 1 0\n")
 	assert.Nil(t, err)
-	assert.Equal(t, 0, d.Vertices.Index("l1"))
-	assert.Equal(t, Matrix{{0.0, 1.0}, {1.0, 0.0}}, d.Values)
+	assert.Equal(t, 0, labels.Index("l1"))
+	assert.Equal(t, Dissimilarity{{0.0, 1.0}, {1.0, 0.0}}, d)
 
 }
 
@@ -108,7 +104,7 @@ Mouton                                                      0
 `
 
 func TestFromFile(t *testing.T) {
-	_, err := NewFromString(string(henley))
+	_, _, err := NewFromString(string(henley))
 	assert.Nil(t, err)
 
 }

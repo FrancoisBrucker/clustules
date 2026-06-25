@@ -13,11 +13,12 @@ func main() {
 		panic(err)
 	}
 
-	d, err := diss.NewFromString(string(data))
+	d, labels, err := diss.NewFromString(string(data))
 	if err != nil {
 		panic(err)
 	}
 
 	fmt.Println(d)
+	fmt.Println(diss.StringWithCorrespondance(d, labels))
 
 }
