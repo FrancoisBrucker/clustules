@@ -36,7 +36,7 @@ func TestContains(t *testing.T) {
 func TestUnion(t *testing.T) {
 	s1 := New(1, 2)
 	s2 := New(2, 3)
-	u := s1.Union(s2)
+	u := s1.Union(&s2)
 	assert.Equal(t, 3, u.Len())
 	assert.True(t, u.Contains(1))
 	assert.True(t, u.Contains(3))
@@ -45,7 +45,7 @@ func TestUnion(t *testing.T) {
 func TestIntersection(t *testing.T) {
 	s1 := New(1, 2, 3)
 	s2 := New(2, 3, 4)
-	i := s1.Intersection(s2)
+	i := s1.Intersection(&s2)
 	assert.Equal(t, 2, i.Len())
 	assert.True(t, i.Contains(2))
 	assert.True(t, i.Contains(3))
@@ -55,7 +55,7 @@ func TestIntersection(t *testing.T) {
 func TestDifference(t *testing.T) {
 	s1 := New(1, 2, 3)
 	s2 := New(2, 3)
-	d := s1.Difference(s2)
+	d := s1.Difference(&s2)
 	assert.Equal(t, 1, d.Len())
 	assert.True(t, d.Contains(1))
 }
