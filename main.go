@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"os"
 
-	"github.com/FrancoisBrucker/clustules/diss"
+	"github.com/FrancoisBrucker/clustules/structure/diss"
 )
 
 func main() {

@@ -5,15 +5,10 @@ import (
 	"strconv"
 	"strings"
 
-	"github.com/FrancoisBrucker/clustules/correspondance"
+	"github.com/FrancoisBrucker/clustules/structure/correspondance"
 )
 
 type Dissimilarity [][]float64
-
-// type Dissimilarity[T correspondance.Element] struct {
-// 	Correspondance *correspondance.Correspondance[T]
-// 	Values         Matrix
-// }
 
 func New(n int) Dissimilarity {
 
