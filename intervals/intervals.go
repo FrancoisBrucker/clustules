@@ -11,9 +11,9 @@ func NewFromDiss(d diss.Diss) diss.Int {
 	for i := range d {
 		s := cluster.Cluster{}
 		s.Add(i)
-		interval.Set(i, i, s)
+		interval.SetValue(i, i, s)
 		for j := i + 1; j < len(d); j++ {
-			interval.Set(i, j, Interval(d, i, j))
+			interval.SetValue(i, j, Interval(d, i, j))
 		}
 	}
 	return interval
@@ -23,7 +23,7 @@ func Ball(d diss.Diss, x int, r float64) cluster.Cluster {
 	c := cluster.Cluster{}
 
 	for y := range d {
-		if d.Get(x, y) <= r {
+		if d.GetValue(x, y) <= r {
 			c.Add(y)
 		}
 	}

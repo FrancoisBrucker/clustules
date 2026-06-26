@@ -42,7 +42,7 @@ func TestUpdate(t *testing.T) {
 func TestSet(t *testing.T) {
 	d := New[float64](3)
 
-	d.Set(0, 2, 2.0)
+	d.SetValue(0, 2, 2.0)
 	assert.Equal(t, 2.0, d[0][2])
 	assert.Equal(t, 2.0, d[2][0])
 
@@ -51,9 +51,9 @@ func TestSet(t *testing.T) {
 func TestGet(t *testing.T) {
 	d := New[float64](3)
 
-	d.Set(0, 2, 2.0)
-	assert.Equal(t, d[0][2], d.Get(0, 2))
-	assert.Equal(t, 0.0, d.Get(0, 1))
+	d.SetValue(0, 2, 2.0)
+	assert.Equal(t, d[0][2], d.GetValue(0, 2))
+	assert.Equal(t, 0.0, d.GetValue(0, 1))
 
 }
 

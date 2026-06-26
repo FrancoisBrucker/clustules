@@ -10,16 +10,16 @@ import (
 
 func newTestDiss() diss.Diss {
 	d := diss.New[float64](5)
-	d.Set(0, 1, 1)
-	d.Set(0, 2, 2)
-	d.Set(0, 3, 3)
-	d.Set(0, 4, 4)
-	d.Set(1, 2, 5)
-	d.Set(1, 3, 6)
-	d.Set(1, 4, 7)
-	d.Set(2, 3, 8)
-	d.Set(2, 4, 9)
-	d.Set(3, 4, 10)
+	d.SetValue(0, 1, 1)
+	d.SetValue(0, 2, 2)
+	d.SetValue(0, 3, 3)
+	d.SetValue(0, 4, 4)
+	d.SetValue(1, 2, 5)
+	d.SetValue(1, 3, 6)
+	d.SetValue(1, 4, 7)
+	d.SetValue(2, 3, 8)
+	d.SetValue(2, 4, 9)
+	d.SetValue(3, 4, 10)
 	return d
 }
 

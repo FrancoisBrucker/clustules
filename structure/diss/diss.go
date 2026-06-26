@@ -53,11 +53,11 @@ func StringWithCorrespondance[L correspondance.Element, V any](d dissimilarity[V
 	return strings.Join(labels, "\n")
 }
 
-func (m *dissimilarity[T]) Get(i, j int) T {
+func (m *dissimilarity[T]) GetValue(i, j int) T {
 	return (*m)[i][j]
 }
 
-func (m *dissimilarity[T]) Set(i, j int, v T) {
+func (m *dissimilarity[T]) SetValue(i, j int, v T) {
 	(*m)[i][j] = v
 	(*m)[j][i] = v
 }
@@ -65,7 +65,7 @@ func (m *dissimilarity[T]) Set(i, j int, v T) {
 func (m *dissimilarity[T]) Update(r func(i, j int) T) {
 	for i := 0; i < len(*m); i++ {
 		for j := i + 1; j < len(*m); j++ {
-			m.Set(i, j, r(i, j))
+			m.SetValue(i, j, r(i, j))
 		}
 	}
 }
@@ -109,7 +109,7 @@ func NewFromString(data string) (Diss, correspondance.Correspondance[string], er
 			if err != nil {
 				return Diss{}, correspondance.Correspondance[string]{}, err
 			}
-			d.Set(i, j, v)
+			d.SetValue(i, j, v)
 		}
 	}
 	return d, labels, nil
