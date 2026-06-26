@@ -5,57 +5,45 @@ import (
 	"strconv"
 	"strings"
 
+	"github.com/FrancoisBrucker/clustules/structure/cluster"
 	"github.com/FrancoisBrucker/clustules/structure/correspondance"
 )
 
-type Dissimilarity [][]float64
+type dissimilarity[T any] [][]T
 
-func New(n int) Dissimilarity {
+type Diss = dissimilarity[float64]
+type Int = dissimilarity[cluster.Cluster]
 
-	m := make([][]float64, n)
-
-	for i := 0; i < n; i++ {
-		m[i] = make([]float64, n)
-		for j := 0; j < n; j++ {
-			m[i][j] = 0.0
-		}
+func New[T any](n int) dissimilarity[T] {
+	m := make([][]T, n)
+	for i := range m {
+		m[i] = make([]T, n)
 	}
-
 	return m
-
 }
 
-func (d Dissimilarity) String() string {
-
+func (d dissimilarity[T]) String() string {
 	labels := make([]string, len(d))
-
-	for i := 0; i < len(d); i++ {
+	for i := range labels {
 		labels[i] = fmt.Sprint(i)
 	}
-
 	corresp, _ := correspondance.New(labels)
-
 	return StringWithCorrespondance(d, corresp)
 }
 
-func StringWithCorrespondance[T correspondance.Element](d Dissimilarity, corresp correspondance.Correspondance[T]) string {
-
+func StringWithCorrespondance[L correspondance.Element, V any](d dissimilarity[V], corresp correspondance.Correspondance[L]) string {
 	labels := make([]string, len(d))
 	sizeLabel := 0
 	sizeValue := 0
 
 	for i := 0; i < len(d); i++ {
-
 		sizeLabel = max(sizeLabel, len(fmt.Sprint(corresp.Label(i))))
-
 		for j := 0; j <= i; j++ {
 			sizeValue = max(sizeValue, len(fmt.Sprint(d[i][j])))
 		}
 	}
 	for i := 0; i < len(d); i++ {
-
 		labels[i] = fmt.Sprintf("%-*s", sizeLabel+1, fmt.Sprint(corresp.Label(i)))
-
 		labels[i] += fmt.Sprintf("%*s", sizeValue, fmt.Sprint(d[i][0]))
 		for j := 1; j <= i; j++ {
 			labels[i] += fmt.Sprintf("%*s", sizeValue+1, fmt.Sprint(d[i][j]))
@@ -65,14 +53,16 @@ func StringWithCorrespondance[T correspondance.Element](d Dissimilarity, corresp
 	return strings.Join(labels, "\n")
 }
 
-func (m *Dissimilarity) Set(i, j int, v float64) {
-	(*m)[i][j] = v
-	(*m)[j][i] = v
-
+func (m *dissimilarity[T]) Get(i, j int) T {
+	return (*m)[i][j]
 }
 
-func (m *Dissimilarity) Update(r func(i, j int) float64) {
+func (m *dissimilarity[T]) Set(i, j int, v T) {
+	(*m)[i][j] = v
+	(*m)[j][i] = v
+}
 
+func (m *dissimilarity[T]) Update(r func(i, j int) T) {
 	for i := 0; i < len(*m); i++ {
 		for j := i + 1; j < len(*m); j++ {
 			m.Set(i, j, r(i, j))
@@ -80,10 +70,8 @@ func (m *Dissimilarity) Update(r func(i, j int) float64) {
 	}
 }
 
-func NewFromString(data string) (Dissimilarity, correspondance.Correspondance[string], error) {
-
+func NewFromString(data string) (Diss, correspondance.Correspondance[string], error) {
 	tokens := Tokenize(string(data))
-
 	kind := matrixType(tokens)
 
 	var labels correspondance.Correspondance[string]
@@ -94,18 +82,15 @@ func NewFromString(data string) (Dissimilarity, correspondance.Correspondance[st
 		for i, x := range tokens {
 			v = append(v, x[0])
 			tokens[i] = tokens[i][1:]
-
 		}
-
 		labels, err = correspondance.New(v)
-
 		if err != nil {
-			return Dissimilarity{}, correspondance.Correspondance[string]{}, err
+			return Diss{}, correspondance.Correspondance[string]{}, err
 		}
 		kind -= 1
 	}
 
-	d := New(len(tokens))
+	d := New[float64](len(tokens))
 
 	var f func(i, j int) (float64, error)
 
@@ -114,7 +99,7 @@ func NewFromString(data string) (Dissimilarity, correspondance.Correspondance[st
 		f = func(i, j int) (float64, error) { return strconv.ParseFloat(tokens[max(i, j)][min(i, j)], 64) }
 	case Upper:
 		f = func(i, j int) (float64, error) { return strconv.ParseFloat(tokens[min(i, j)][max(i, j)-min(i, j)], 64) }
-	default: // Square
+	default:
 		f = func(i, j int) (float64, error) { return strconv.ParseFloat(tokens[i][j], 64) }
 	}
 
@@ -122,9 +107,8 @@ func NewFromString(data string) (Dissimilarity, correspondance.Correspondance[st
 		for j := i + 1; j < len(d); j++ {
 			v, err := f(i, j)
 			if err != nil {
-				return Dissimilarity{}, correspondance.Correspondance[string]{}, err
+				return Diss{}, correspondance.Correspondance[string]{}, err
 			}
-
 			d.Set(i, j, v)
 		}
 	}
@@ -132,21 +116,17 @@ func NewFromString(data string) (Dissimilarity, correspondance.Correspondance[st
 }
 
 func Tokenize(data string) [][]string {
-
 	tokens := make([][]string, 0)
-
 	for _, line := range strings.Split(data, "\n") {
 		line = strings.TrimSpace(line)
 		if len(line) == 0 {
 			continue
 		}
-
 		tokens = append(tokens, make([]string, 0))
 		for token := range strings.FieldsSeq(string(line)) {
 			tokens[len(tokens)-1] = append(tokens[len(tokens)-1], token)
 		}
 	}
-
 	return tokens
 }
 
@@ -162,7 +142,6 @@ const (
 )
 
 func matrixType(tokens [][]string) FileType {
-
 	n := len(tokens)
 	first := len(tokens[0])
 	last := len(tokens[len(tokens)-1])
@@ -175,12 +154,9 @@ func matrixType(tokens [][]string) FileType {
 	switch {
 	case first == last:
 		return Square + FileType(label)
-
 	case first < last:
 		return Lower + FileType(label)
 	default:
 		return Upper + FileType(label)
-
 	}
-
 }

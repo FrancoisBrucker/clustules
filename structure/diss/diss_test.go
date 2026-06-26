@@ -9,7 +9,7 @@ import (
 
 func Example() {
 
-	d := New(3)
+	d := New[float64](3)
 
 	fmt.Println(d)
 	// Output:
@@ -21,14 +21,14 @@ func Example() {
 
 func TestNewMatrix(t *testing.T) {
 
-	d := New(3)
+	d := New[float64](3)
 
 	assert.Equal(t, 3, len(d))
 	assert.Equal(t, 3, len(d[0]))
 }
 
 func TestUpdate(t *testing.T) {
-	d := New(3)
+	d := New[float64](3)
 	d.Update(func(i, j int) float64 { return 1.0 })
 
 	assert.Equal(t, 1.0, d[0][1])
@@ -40,11 +40,20 @@ func TestUpdate(t *testing.T) {
 }
 
 func TestSet(t *testing.T) {
-	d := New(3)
+	d := New[float64](3)
 
 	d.Set(0, 2, 2.0)
 	assert.Equal(t, 2.0, d[0][2])
 	assert.Equal(t, 2.0, d[2][0])
+
+}
+
+func TestGet(t *testing.T) {
+	d := New[float64](3)
+
+	d.Set(0, 2, 2.0)
+	assert.Equal(t, d[0][2], d.Get(0, 2))
+	assert.Equal(t, 0.0, d.Get(0, 1))
 
 }
 
@@ -66,22 +75,22 @@ func TestMatrixType(t *testing.T) {
 func TestNewFromString(t *testing.T) {
 	d, labels, err := NewFromString("0\n 1 0\n")
 	assert.Nil(t, err)
-	assert.Equal(t, Dissimilarity{{0.0, 1.0}, {1.0, 0.0}}, d)
+	assert.Equal(t, dissimilarity[float64]{{0.0, 1.0}, {1.0, 0.0}}, d)
 
 	d, labels, err = NewFromString("l1 0\nl2 1 0\n")
 	assert.Nil(t, err)
 	assert.Equal(t, "l2", labels.Label(1))
-	assert.Equal(t, Dissimilarity{{0.0, 1.0}, {1.0, 0.0}}, d)
+	assert.Equal(t, dissimilarity[float64]{{0.0, 1.0}, {1.0, 0.0}}, d)
 
 	d, labels, err = NewFromString("l1 0 1\nl2 0\n")
 	assert.Nil(t, err)
 	assert.Equal(t, 0, labels.Index("l1"))
-	assert.Equal(t, Dissimilarity{{0.0, 1.0}, {1.0, 0.0}}, d)
+	assert.Equal(t, dissimilarity[float64]{{0.0, 1.0}, {1.0, 0.0}}, d)
 
 	d, labels, err = NewFromString("l1 0 1\nl2 1 0\n")
 	assert.Nil(t, err)
 	assert.Equal(t, 0, labels.Index("l1"))
-	assert.Equal(t, Dissimilarity{{0.0, 1.0}, {1.0, 0.0}}, d)
+	assert.Equal(t, dissimilarity[float64]{{0.0, 1.0}, {1.0, 0.0}}, d)
 
 }
 
