@@ -36,13 +36,13 @@ func StringWithCorrespondance[L correspondance.Element, V any](d dissimilarity[V
 	sizeLabel := 0
 	sizeValue := 0
 
-	for i := 0; i < len(d); i++ {
+	for i := range d {
 		sizeLabel = max(sizeLabel, len(fmt.Sprint(corresp.Label(i))))
 		for j := 0; j <= i; j++ {
 			sizeValue = max(sizeValue, len(fmt.Sprint(d[i][j])))
 		}
 	}
-	for i := 0; i < len(d); i++ {
+	for i := range d {
 		labels[i] = fmt.Sprintf("%-*s", sizeLabel+1, fmt.Sprint(corresp.Label(i)))
 		labels[i] += fmt.Sprintf("%*s", sizeValue, fmt.Sprint(d[i][0]))
 		for j := 1; j <= i; j++ {
@@ -117,7 +117,8 @@ func NewFromString(data string) (Diss, correspondance.Correspondance[string], er
 
 func Tokenize(data string) [][]string {
 	tokens := make([][]string, 0)
-	for _, line := range strings.Split(data, "\n") {
+
+	for line := range strings.SplitSeq(data, "\n") {
 		line = strings.TrimSpace(line)
 		if len(line) == 0 {
 			continue

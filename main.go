@@ -18,7 +18,6 @@ func main() {
 		panic(err)
 	}
 
-	fmt.Println(d)
 	fmt.Println(diss.StringWithCorrespondance(d, labels))
 
 }
