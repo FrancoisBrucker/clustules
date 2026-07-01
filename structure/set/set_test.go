@@ -1,6 +1,7 @@
 package set
 
 import (
+	"slices"
 	"testing"
 
 	"github.com/stretchr/testify/assert"
@@ -53,6 +54,26 @@ func TestDifference(t *testing.T) {
 	d := s1.Difference(s2)
 	assert.Equal(t, 1, d.Len())
 	assert.True(t, d.Contains(1))
+}
+
+func TestAll(t *testing.T) {
+	empty := make(Set[int])
+	assert.Empty(t, slices.Collect(empty.All()))
+
+	single := Set[int]{42: {}}
+	assert.Equal(t, []int{42}, slices.Collect(single.All()))
+
+	// contenu sans ordre garanti
+	s := Set[int]{1: {}, 2: {}, 3: {}}
+	assert.ElementsMatch(t, []int{1, 2, 3}, slices.Collect(s.All()))
+
+	// arrêt anticipé via break
+	count := 0
+	for range s.All() {
+		count++
+		break
+	}
+	assert.Equal(t, 1, count)
 }
 
 func TestSorted(t *testing.T) {

@@ -1,6 +1,7 @@
 package cluster
 
 import (
+	"slices"
 	"testing"
 
 	"github.com/stretchr/testify/assert"
@@ -104,6 +105,30 @@ func TestFamilySorted(t *testing.T) {
 	f2.Add(New(1))
 	f2.Add(New(2))
 	assert.Equal(t, []Cluster{New(1), New(2), New(3)}, f2.Sorted())
+}
+
+func TestFamilyAll(t *testing.T) {
+	empty := make(Family)
+	assert.Empty(t, slices.Collect(empty.All()))
+
+	single := make(Family)
+	single.Add(New(1, 2))
+	assert.Equal(t, []Cluster{New(1, 2)}, slices.Collect(single.All()))
+
+	// tous les clusters sont rendus, sans ordre garanti
+	f := make(Family)
+	f.Add(New(1, 2, 3))
+	f.Add(New(4))
+	f.Add(New(5, 6))
+	assert.ElementsMatch(t, []Cluster{New(4), New(5, 6), New(1, 2, 3)}, slices.Collect(f.All()))
+
+	// arrêt anticipé via break : un seul élément collecté
+	count := 0
+	for range f.All() {
+		count++
+		break
+	}
+	assert.Equal(t, 1, count)
 }
 
 func TestFamilyString(t *testing.T) {

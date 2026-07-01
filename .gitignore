@@ -1,0 +1,6 @@
+# binaire Go
+clustules
+
+# fichiers générés
+*.dot
+*.pdf

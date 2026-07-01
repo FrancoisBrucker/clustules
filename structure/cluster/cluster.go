@@ -2,6 +2,7 @@ package cluster
 
 import (
 	"fmt"
+	"iter"
 	"maps"
 	"slices"
 	"strings"
@@ -32,6 +33,16 @@ func (f Family) Sorted() []Cluster {
 		return slices.Compare(a.Sorted(), b.Sorted())
 	})
 	return clusters
+}
+
+func (f Family) All() iter.Seq[Cluster] {
+	return func(yield func(Cluster) bool) {
+		for c := range maps.Values(f) {
+			if !yield(c) {
+				return
+			}
+		}
+	}
 }
 
 func (f Family) String() string {
@@ -85,4 +96,71 @@ func (f *Family) Difference(other *Family) Family {
 		}
 	}
 	return result
+}
+
+func Lattice(f Family) ([][]bool, []Cluster) {
+	elements := f.Sorted()
+
+	matrixAll := make([][]bool, len(elements))
+
+	for i := range elements {
+		matrixAll[i] = make([]bool, len(elements))
+		for j := i + 1; j < len(elements); j++ {
+			if elements[i].IsSubsetOf(elements[j]) {
+				matrixAll[i][j] = true
+			}
+		}
+	}
+
+	matrix := make([][]bool, len(elements))
+
+	for i := range elements {
+		matrix[i] = make([]bool, len(elements))
+		for j := i + 1; j < len(elements); j++ {
+			if matrixAll[i][j] {
+				matrix[i][j] = true
+
+				for k := i + 1; k < j; k++ {
+					if matrixAll[i][k] && matrixAll[k][j] {
+						matrix[i][j] = false
+						break
+					}
+				}
+			}
+		}
+	}
+
+	return matrix, elements
+}
+
+func (f *Family) Dot(label func(int) string) string {
+
+	matrix, elements := Lattice(*f)
+
+	if label == nil {
+		label = func(i int) string { return fmt.Sprintf("%d", i) }
+	}
+	bySize := make(map[int][]string)
+	for i, c := range elements {
+		size := c.Len()
+		bySize[size] = append(bySize[size], label(i))
+	}
+	sizes := slices.Collect(maps.Keys(bySize))
+	slices.Sort(sizes)
+
+	var lines []string
+	for _, size := range sizes {
+		nodes := bySize[size]
+		lines = append(lines, fmt.Sprintf("    { rank=same; %s }", strings.Join(nodes, "; ")))
+	}
+	lines = append(lines, "")
+	for i, row := range matrix {
+		for j, val := range row {
+			if val {
+				lines = append(lines, fmt.Sprintf("    %s -> %s;", label(i), label(j)))
+			}
+		}
+	}
+	return "digraph G {\n    overlap=false\n    rankdir=BT\n\n" + strings.Join(lines, "\n") + "\n}"
+
 }

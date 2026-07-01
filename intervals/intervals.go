@@ -1,6 +1,8 @@
 package intervals
 
 import (
+	"fmt"
+
 	"github.com/FrancoisBrucker/clustules/structure/cluster"
 	"github.com/FrancoisBrucker/clustules/structure/diss"
 	"github.com/FrancoisBrucker/clustules/structure/graph"
@@ -38,6 +40,7 @@ func Interval(d diss.Diss, x int, y int) cluster.Cluster {
 	}
 	return c
 }
+
 func ToGraph(d diss.Int) graph.Graph {
 
 	F := cluster.Family{}
@@ -48,6 +51,35 @@ func ToGraph(d diss.Int) graph.Graph {
 	}
 
 	G := graph.New(len(d))
+	for _, C := range F.Sorted() {
+		parts := G.ConnectedPartsIn(C)
+		for x := range C {
+			for y := range C {
+				if (x < y) && (parts[x] != parts[y]) {
+					G.AddEdges([2]int{x, y})
+				}
+			}
+		}
+	}
 
 	return G
+}
+
+func Simple(d diss.Int) cluster.Family {
+
+	G := ToGraph(d)
+
+	F := cluster.Family{}
+
+	for x := range d {
+		F.Add(d[x][x])
+	}
+	for xy := range G.Edges() {
+		x := xy[0]
+		y := xy[1]
+		fmt.Println(d[x][y])
+		F.Add(d[x][y])
+	}
+
+	return F
 }

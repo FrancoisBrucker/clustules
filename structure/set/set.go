@@ -3,20 +3,20 @@ package set
 import (
 	"cmp"
 	"fmt"
+	"iter"
+	"maps"
 	"slices"
 	"strings"
 )
 
 type Set[T cmp.Ordered] map[T]struct{}
 
+func (s Set[T]) All() iter.Seq[T] {
+	return maps.Keys(map[T]struct{}(s))
+}
+
 func (s Set[T]) Sorted() []T {
-	elements := slices.Collect(func(yield func(T) bool) {
-		for e := range s {
-			if !yield(e) {
-				return
-			}
-		}
-	})
+	elements := slices.Collect(s.All())
 	slices.Sort(elements)
 	return elements
 }
@@ -49,6 +49,19 @@ func (s *Set[T]) Contains(element T) bool {
 
 func (s *Set[T]) Len() int {
 	return len(*s)
+}
+
+func (s Set[T]) IsSubsetOf(other Set[T]) bool {
+	for e := range s {
+		if !other.Contains(e) {
+			return false
+		}
+	}
+	return true
+}
+
+func (s Set[T]) IsSupersetOf(other Set[T]) bool {
+	return other.IsSubsetOf(s)
 }
 
 func (s *Set[T]) Union(other Set[T]) Set[T] {
