@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"maps"
 	"slices"
+	"strings"
 
 	"github.com/FrancoisBrucker/clustules/structure/set"
 )
@@ -20,6 +21,26 @@ func New(elements ...int) Cluster {
 func key(s Cluster) string {
 	elems := slices.Sorted(maps.Keys(map[int]struct{}(s)))
 	return fmt.Sprint(elems)
+}
+
+func (f Family) Sorted() []Cluster {
+	clusters := slices.Collect(maps.Values(f))
+	slices.SortFunc(clusters, func(a, b Cluster) int {
+		if a.Len() != b.Len() {
+			return a.Len() - b.Len()
+		}
+		return strings.Compare(a.String(), b.String())
+	})
+	return clusters
+}
+
+func (f Family) String() string {
+	clusters := f.Sorted()
+	parts := make([]string, len(clusters))
+	for i, c := range clusters {
+		parts[i] = c.String()
+	}
+	return "[" + strings.Join(parts, ", ") + "]"
 }
 
 func (f *Family) Add(c Cluster) {

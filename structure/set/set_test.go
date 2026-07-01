@@ -54,3 +54,21 @@ func TestDifference(t *testing.T) {
 	assert.Equal(t, 1, d.Len())
 	assert.True(t, d.Contains(1))
 }
+
+func TestString(t *testing.T) {
+	empty := make(Set[int])
+	assert.Equal(t, "{}", empty.String())
+
+	single := Set[string]{"a": {}}
+	assert.Equal(t, "{a}", single.String())
+
+	multi := Set[string]{"b": {}, "a": {}, "c": {}}
+	assert.Equal(t, "{a, b, c}", multi.String())
+
+	ints := Set[int]{3: {}, 1: {}, 2: {}}
+	assert.Equal(t, "{1, 2, 3}", ints.String())
+
+	// ordre naturel : 2 < 10, pas l'ordre lexicographique "10" < "2"
+	natural := Set[int]{10: {}, 2: {}, 1: {}}
+	assert.Equal(t, "{1, 2, 10}", natural.String())
+}

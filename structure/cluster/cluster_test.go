@@ -82,3 +82,49 @@ func TestFamilyDifference(t *testing.T) {
 	assert.True(t, d.Contains(New(1, 2)))
 	assert.False(t, d.Contains(New(3)))
 }
+
+func TestFamilySorted(t *testing.T) {
+	empty := make(Family)
+	assert.Empty(t, empty.Sorted())
+
+	single := make(Family)
+	single.Add(New(1, 2))
+	assert.Equal(t, []Cluster{New(1, 2)}, single.Sorted())
+
+	// tri par taille croissante
+	f := make(Family)
+	f.Add(New(1, 2, 3))
+	f.Add(New(4))
+	f.Add(New(5, 6))
+	assert.Equal(t, []Cluster{New(4), New(5, 6), New(1, 2, 3)}, f.Sorted())
+
+	// à taille égale : tri lexicographique
+	f2 := make(Family)
+	f2.Add(New(3))
+	f2.Add(New(1))
+	f2.Add(New(2))
+	assert.Equal(t, []Cluster{New(1), New(2), New(3)}, f2.Sorted())
+}
+
+func TestFamilyString(t *testing.T) {
+	empty := make(Family)
+	assert.Equal(t, "[]", empty.String())
+
+	single := make(Family)
+	single.Add(New(1, 2))
+	assert.Equal(t, "[{1, 2}]", single.String())
+
+	// tri par taille croissante
+	f := make(Family)
+	f.Add(New(1, 2, 3))
+	f.Add(New(4))
+	f.Add(New(5, 6))
+	assert.Equal(t, "[{4}, {5, 6}, {1, 2, 3}]", f.String())
+
+	// à taille égale : tri lexicographique
+	f2 := make(Family)
+	f2.Add(New(3))
+	f2.Add(New(1))
+	f2.Add(New(2))
+	assert.Equal(t, "[{1}, {2}, {3}]", f2.String())
+}

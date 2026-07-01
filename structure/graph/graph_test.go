@@ -14,7 +14,7 @@ func Example() {
 	G.AddEdges([][2]int{{0, 1}, {1, 2}}...)
 
 	fmt.Println(G)
-	// Output: [map[1:{}] map[0:{} 2:{}] map[1:{}]]
+	// Output: [{1} {0, 2} {1}]
 
 }
 

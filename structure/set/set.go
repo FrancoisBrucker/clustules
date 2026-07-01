@@ -1,6 +1,29 @@
 package set
 
-type Set[T comparable] map[T]struct{}
+import (
+	"cmp"
+	"fmt"
+	"slices"
+	"strings"
+)
+
+type Set[T cmp.Ordered] map[T]struct{}
+
+func (s Set[T]) String() string {
+	elements := slices.Collect(func(yield func(T) bool) {
+		for e := range s {
+			if !yield(e) {
+				return
+			}
+		}
+	})
+	slices.Sort(elements)
+	parts := make([]string, len(elements))
+	for i, e := range elements {
+		parts[i] = fmt.Sprintf("%v", e)
+	}
+	return "{" + strings.Join(parts, ", ") + "}"
+}
 
 func (s *Set[T]) Add(elements ...T) {
 	for _, e := range elements {

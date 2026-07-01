@@ -4,6 +4,8 @@ import (
 	"fmt"
 	"os"
 
+	"github.com/FrancoisBrucker/clustules/intervals"
+	"github.com/FrancoisBrucker/clustules/structure/cluster"
 	"github.com/FrancoisBrucker/clustules/structure/diss"
 )
 
@@ -19,5 +21,18 @@ func main() {
 	}
 
 	fmt.Println(diss.StringWithCorrespondance(d, labels))
+	ints := intervals.NewFromDiss(d)
+	fmt.Println(ints)
+
+	F := cluster.Family{}
+	for x := range ints {
+		for y := range ints {
+			F.Add(ints[x][y])
+		}
+	}
+	fmt.Println(F)
+	for _, x := range F.Sorted() {
+		fmt.Println(x)
+	}
 
 }
