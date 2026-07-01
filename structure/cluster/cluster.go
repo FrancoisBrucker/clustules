@@ -29,7 +29,7 @@ func (f Family) Sorted() []Cluster {
 		if a.Len() != b.Len() {
 			return a.Len() - b.Len()
 		}
-		return strings.Compare(a.String(), b.String())
+		return slices.Compare(a.Sorted(), b.Sorted())
 	})
 	return clusters
 }

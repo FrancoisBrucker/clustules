@@ -3,6 +3,7 @@ package intervals
 import (
 	"github.com/FrancoisBrucker/clustules/structure/cluster"
 	"github.com/FrancoisBrucker/clustules/structure/diss"
+	"github.com/FrancoisBrucker/clustules/structure/graph"
 )
 
 func NewFromDiss(d diss.Diss) diss.Int {
@@ -36,4 +37,17 @@ func Interval(d diss.Diss, x int, y int) cluster.Cluster {
 		c = c.Intersection(Ball(d, z, max(d[x][y], d[x][z], d[y][z])))
 	}
 	return c
+}
+func ToGraph(d diss.Int) graph.Graph {
+
+	F := cluster.Family{}
+	for x := range d {
+		for y := range d {
+			F.Add(d[x][y])
+		}
+	}
+
+	G := graph.New(len(d))
+
+	return G
 }

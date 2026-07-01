@@ -9,7 +9,7 @@ import (
 
 type Set[T cmp.Ordered] map[T]struct{}
 
-func (s Set[T]) String() string {
+func (s Set[T]) Sorted() []T {
 	elements := slices.Collect(func(yield func(T) bool) {
 		for e := range s {
 			if !yield(e) {
@@ -18,6 +18,11 @@ func (s Set[T]) String() string {
 		}
 	})
 	slices.Sort(elements)
+	return elements
+}
+
+func (s Set[T]) String() string {
+	elements := s.Sorted()
 	parts := make([]string, len(elements))
 	for i, e := range elements {
 		parts[i] = fmt.Sprintf("%v", e)
