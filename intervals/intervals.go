@@ -6,6 +6,7 @@ import (
 	"github.com/FrancoisBrucker/clustules/structure/cluster"
 	"github.com/FrancoisBrucker/clustules/structure/diss"
 	"github.com/FrancoisBrucker/clustules/structure/graph"
+	"github.com/FrancoisBrucker/clustules/structure/graph/chordal"
 )
 
 func NewFromDiss(d diss.Diss) diss.Int {
@@ -112,4 +113,29 @@ func NUFamily(d diss.Int) diss.Int {
 		}
 	}
 	return d2
+}
+
+func MaxElements(nud diss.Int) cluster.Family {
+
+	f := cluster.Family{}
+
+	for C := range chordal.MaximalCliques(ToGraph(nud)).All() {
+		D := cluster.Cluster{}
+
+		for x := range C.All() {
+			for y := range C.All() {
+				D = D.Union(nud[x][y])
+			}
+		}
+		f.Add(D)
+
+	}
+	return f
+}
+
+func Bags(nug graph.Graph, C cluster.Cluster) cluster.Family {
+
+	// tab := nug.ConnectedPartsIn(C)
+
+	return nil
 }

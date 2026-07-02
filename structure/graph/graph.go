@@ -100,14 +100,22 @@ func (g *Graph) EdgesIn(c set.Set[int]) iter.Seq[[2]int] {
 	}
 }
 
-func (g *Graph) ConnectedPartsEdges(edges iter.Seq[[2]int]) []int {
+func (g *Graph) ConnectedParts() []int {
+	return g.ConnectedPartsIn(nil)
+}
+
+func (g *Graph) ConnectedPartsIn(c cluster.Cluster) []int {
+
 	n := len(*g)
 	parts := make([]int, n)
 	for i := range parts {
 		parts[i] = i
 	}
-	for e := range edges {
+	for e := range g.Edges() {
 		u, v := e[0], e[1]
+		if c != nil && (!c.Contains(u) || !c.Contains(v)) {
+			continue
+		}
 		if parts[u] != parts[v] {
 			keep, discard := min(parts[u], parts[v]), max(parts[u], parts[v])
 			for w := range parts {
@@ -118,12 +126,5 @@ func (g *Graph) ConnectedPartsEdges(edges iter.Seq[[2]int]) []int {
 		}
 	}
 	return parts
-}
 
-func (g *Graph) ConnectedParts() []int {
-	return g.ConnectedPartsEdges(g.Edges())
-}
-
-func (g *Graph) ConnectedPartsIn(c cluster.Cluster) []int {
-	return g.ConnectedPartsEdges(g.EdgesIn(c))
 }

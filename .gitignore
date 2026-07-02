@@ -4,3 +4,6 @@ clustules
 # fichiers générés
 *.dot
 *.pdf
+
+# poubelle
+.DS_Store

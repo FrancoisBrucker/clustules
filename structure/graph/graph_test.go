@@ -99,28 +99,15 @@ func TestEdgesIn(t *testing.T) {
 	assert.Equal(t, [][2]int{{1, 2}, {2, 3}}, sortedEdgesIn(G, c2))
 }
 
-func TestConnectedPartsEdges(t *testing.T) {
+func TestConnectedPartsIn(t *testing.T) {
 	G := New(4)
 
 	// aucune arête : chaque sommet est sa propre composante
-	assert.Equal(t, []int{0, 1, 2, 3}, G.ConnectedPartsEdges(func(yield func([2]int) bool) {}))
+	assert.Equal(t, []int{0, 1, 2, 3}, G.ConnectedParts())
 
-	// une arête : fusionne deux sommets
-	assert.Equal(t, []int{0, 0, 2, 3}, G.ConnectedPartsEdges(func(yield func([2]int) bool) {
-		yield([2]int{0, 1})
-	}))
+	G.AddEdges([2]int{0, 1})
 
-	// chemin 0-1-2 : une seule composante, sommet 3 isolé
-	assert.Equal(t, []int{0, 0, 0, 3}, G.ConnectedPartsEdges(func(yield func([2]int) bool) {
-		yield([2]int{0, 1})
-		yield([2]int{1, 2})
-	}))
+	assert.Equal(t, []int{0, 0, 2, 3}, G.ConnectedParts())
 
-	// toutes les arêtes du graphe via Edges()
-	G.AddEdges([][2]int{{0, 1}, {1, 2}, {2, 3}}...)
-	assert.Equal(t, []int{0, 0, 0, 0}, G.ConnectedPartsEdges(G.Edges()))
-
-	// arêtes restreintes au cluster {0,1,2} via EdgesIn()
-	c := cluster.New(0, 1, 2)
-	assert.Equal(t, []int{0, 0, 0, 3}, G.ConnectedPartsEdges(G.EdgesIn(c)))
+	assert.Equal(t, []int{0, 1, 2, 3}, G.ConnectedPartsIn(cluster.New(1, 2, 3)))
 }
