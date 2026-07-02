@@ -109,5 +109,6 @@ func TestConnectedPartsIn(t *testing.T) {
 
 	assert.Equal(t, []int{0, 0, 2, 3}, G.ConnectedParts())
 
-	assert.Equal(t, []int{0, 1, 2, 3}, G.ConnectedPartsIn(cluster.New(1, 2, 3)))
+	G.AddEdges([2]int{0, 1}, [2]int{1, 2})
+	assert.Equal(t, []int{0, -1, 2, 3}, G.ConnectedPartsIn(cluster.New(0, 2, 3)))
 }

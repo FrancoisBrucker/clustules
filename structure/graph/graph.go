@@ -109,7 +109,12 @@ func (g *Graph) ConnectedPartsIn(c cluster.Cluster) []int {
 	n := len(*g)
 	parts := make([]int, n)
 	for i := range parts {
-		parts[i] = i
+		if c == nil || c.Contains(i) {
+			parts[i] = i
+		} else {
+			parts[i] = -1
+		}
+
 	}
 	for e := range g.Edges() {
 		u, v := e[0], e[1]
