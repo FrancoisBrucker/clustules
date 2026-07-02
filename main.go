@@ -2,7 +2,6 @@ package main
 
 import (
 	"fmt"
-	"log"
 	"os"
 
 	"github.com/FrancoisBrucker/clustules/intervals"
@@ -44,16 +43,23 @@ func main() {
 		fmt.Println(x)
 	}
 
-	files := map[string]string{
-		"non_etirable.dot":          G.Dot(nil),
-		"non_etirable_label.dot":    G.Dot(func(i int) string { return labels.Label(i) }),
-		"treillis_all.dot":          F.Dot(nil),
-		"non_etirable_treillis.dot": F2.Dot(nil),
-	}
-	for name, content := range files {
-		if err := os.WriteFile(name, []byte(content), 0644); err != nil {
-			log.Fatalf("écriture %s : %v", name, err)
+	NUF := intervals.NUFamily(ints)
+	for x := range ints {
+		for y := x + 1; y < len(ints); y++ {
+			fmt.Println(x, y, NUF[x][y], ints[x][y])
 		}
 	}
+
+	// files := map[string]string{
+	// 	"non_etirable.dot":          G.Dot(nil),
+	// 	"non_etirable_label.dot":    G.Dot(func(i int) string { return labels.Label(i) }),
+	// 	"treillis_all.dot":          F.Dot(nil),
+	// 	"non_etirable_treillis.dot": F2.Dot(nil),
+	// }
+	// for name, content := range files {
+	// 	if err := os.WriteFile(name, []byte(content), 0644); err != nil {
+	// 		log.Fatalf("écriture %s : %v", name, err)
+	// 	}
+	// }
 
 }

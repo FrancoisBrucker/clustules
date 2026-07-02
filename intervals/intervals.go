@@ -83,3 +83,33 @@ func Simple(d diss.Int) cluster.Family {
 
 	return F
 }
+
+func NUFamily(d diss.Int) diss.Int {
+	d2 := diss.New[cluster.Cluster](len(d))
+	for x := range d {
+
+		for y := x; y < len(d); y++ {
+			d2.SetValue(x, y, d[x][y])
+		}
+
+	}
+	modified := true
+
+	for modified {
+		modified = false
+		for x := range d2 {
+			for y := x + 1; y < len(d2); y++ {
+				c := d2[x][y]
+
+				for z := range d2 {
+					c = c.Intersection(d2[x][z].Union(d2[z][y]))
+				}
+				if !c.Equal(d2[x][y]) {
+					modified = true
+					d2.SetValue(x, y, c)
+				}
+			}
+		}
+	}
+	return d2
+}

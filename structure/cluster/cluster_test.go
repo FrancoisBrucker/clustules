@@ -7,6 +7,23 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
+func TestFamilyEqual(t *testing.T) {
+	f1 := make(Family)
+	f1.Add(New(1, 2))
+	f1.Add(New(3))
+
+	f2 := make(Family)
+	f2.Add(New(2, 1))
+	f2.Add(New(3))
+
+	f3 := make(Family)
+	f3.Add(New(1, 2))
+
+	assert.True(t, f1.Equal(&f2))
+	assert.False(t, f1.Equal(&f3))
+	assert.False(t, f3.Equal(&f1))
+}
+
 func TestFamilyAdd(t *testing.T) {
 	f := make(Family)
 	f.Add(New(1, 2))

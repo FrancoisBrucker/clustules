@@ -56,6 +56,14 @@ func TestDifference(t *testing.T) {
 	assert.True(t, d.Contains(1))
 }
 
+func TestEqual(t *testing.T) {
+	assert.True(t, Set[int]{}.Equal(Set[int]{}))
+	assert.True(t, Set[int]{1: {}, 2: {}}.Equal(Set[int]{2: {}, 1: {}}))
+	assert.False(t, Set[int]{1: {}, 2: {}}.Equal(Set[int]{1: {}}))
+	assert.False(t, Set[int]{1: {}}.Equal(Set[int]{1: {}, 2: {}}))
+	assert.False(t, Set[int]{1: {}, 2: {}}.Equal(Set[int]{1: {}, 3: {}}))
+}
+
 func TestAll(t *testing.T) {
 	empty := make(Set[int])
 	assert.Empty(t, slices.Collect(empty.All()))

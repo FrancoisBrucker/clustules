@@ -71,6 +71,18 @@ func (f *Family) Len() int {
 	return len(*f)
 }
 
+func (f *Family) Equal(other *Family) bool {
+	if len(*f) != len(*other) {
+		return false
+	}
+	for k := range *f {
+		if _, ok := (*other)[k]; !ok {
+			return false
+		}
+	}
+	return true
+}
+
 func (f *Family) Union(other *Family) Family {
 	result := make(Family)
 	maps.Copy(result, *f)

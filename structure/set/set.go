@@ -94,3 +94,10 @@ func (s *Set[T]) Difference(other Set[T]) Set[T] {
 	}
 	return result
 }
+
+func (s Set[T]) Equal(other Set[T]) bool {
+	if len(s) != len(other) {
+		return false
+	}
+	return s.IsSubsetOf(other)
+}
