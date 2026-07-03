@@ -135,7 +135,25 @@ func MaxElements(nud diss.Int) cluster.Family {
 
 func Bags(nug graph.Graph, C cluster.Cluster) cluster.Family {
 
-	// tab := nug.ConnectedPartsIn(C)
+	tab := nug.ConnectedPartsIn(C)
+	corresp := make([]cluster.Cluster, len(nug))
+
+	for x := range C.All() {
+		corresp[tab[x]].Add(x)
+	}
+
+	f := cluster.Family{}
+
+	for _, c := range corresp {
+		if len(c) > 0 {
+			f.Add(c)
+		}
+	}
+
+	return f
+}
+
+func MaxInclusion(nug graph.Graph, nud diss.Int, C cluster.Cluster) cluster.Family {
 
 	return nil
 }

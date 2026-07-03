@@ -68,6 +68,11 @@ func main() {
 
 	fmt.Println("Elements max de tilde{F} et ses bags :")
 	fmt.Println("{...} (clique | max) bags {...}, ..., {...}")
+
+	// clique si 1 seule partie connexe.
+	// tbd faire partie connexe avec famille
+	//tbd verifier que len(F) et len(C) fonctionnent.
+
 	maxElmts := intervals.MaxElements(nud)
 	for _, x := range maxElmts.Sorted() {
 		fmt.Println(x)
