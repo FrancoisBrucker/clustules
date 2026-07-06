@@ -11,7 +11,6 @@ import (
 	"github.com/FrancoisBrucker/clustules/structure/correspondance"
 	"github.com/FrancoisBrucker/clustules/structure/diss"
 	"github.com/FrancoisBrucker/clustules/structure/graph"
-	"github.com/FrancoisBrucker/clustules/structure/graph/chordal"
 )
 
 type classif struct {
@@ -77,45 +76,27 @@ func main() {
 
 	orig := createAndPrint(intervals.NewFromDiss(d), labels, "out/orig_")
 
-	nud := intervals.NUFamily(orig.i)
-	nu := classif{
-		i: nud,
-		g: intervals.ToGraph(nud),
-		f: intervals.Simple(nud),
-	}
+	nu := createAndPrint(intervals.NUFamily(orig.i), labels, "out/nu_")
 
-	nugCliques := chordal.MaximalCliques(nu.g)
-
-	fmt.Println("Max cliques de G[tilde{F}] :")
-	for _, x := range nugCliques.Sorted() {
-		fmt.Println(x)
-	}
-
-	// fmt.Println("Elements max de tilde{F} et ses bags :")
-	// fmt.Println("{...} (clique | max) bags {...}, ..., {...}")
+	fmt.Println("Elements max de tilde{F} et ses bags :")
+	fmt.Println("(clique | max) {...}  bags {...}, ..., {...}")
 
 	// // clique si 1 seule partie connexe.
 	// // tbd faire partie connexe avec famille
 	// //tbd verifier que len(F) et len(C) fonctionnent.
 
-	// maxElmts := intervals.MaxElements(nud)
-	// for _, x := range maxElmts.Sorted() {
-	// 	// intervals.MaxInclusion(x,)
-	// 	fmt.Print(x)
-	// }
+	for _, x := range intervals.MaxElements(nu.i).Sorted() {
 
-	// files := map[string]string{
-	// 	"non_etirable.dot":           G.Dot(nil),
-	// 	"non_etirable_label.dot":     G.Dot(func(i int) string { return labels.Label(i) }),
-	// 	"non_etirable_nuf.dot":       nug.Dot(nil),
-	// 	"non_etirable_nuf_label.dot": nug.Dot(func(i int) string { return labels.Label(i) }),
-	// 	"non_etirable_treillis.dot":  cnuf.Dot(nil),
-	// }
+		y := intervals.MaxInclusion(x, nu.g, nu.i)
 
-	// for name, content := range files {
-	// 	if err := os.WriteFile(name, []byte(content), 0644); err != nil {
-	// 		log.Fatalf("écriture %s : %v", name, err)
-	// 	}
-	// }
+		if len(y) == 1 {
+			fmt.Print("M ")
+		} else {
+			fmt.Print("C ")
+		}
+		fmt.Print(x, " ")
+		fmt.Print(intervals.Bags(y, nu.g, nu.i))
+		fmt.Println()
+	}
 
 }

@@ -69,36 +69,6 @@ func TestEdges(t *testing.T) {
 	assert.Equal(t, [][2]int{{0, 1}, {0, 2}, {1, 2}}, sortedEdges(G2))
 }
 
-func sortedEdgesIn(G Graph, c cluster.Cluster) [][2]int {
-	edges := slices.Collect(G.EdgesIn(c))
-	slices.SortFunc(edges, func(a, b [2]int) int {
-		if n := cmp.Compare(a[0], b[0]); n != 0 {
-			return n
-		}
-		return cmp.Compare(a[1], b[1])
-	})
-	return edges
-}
-
-func TestEdgesIn(t *testing.T) {
-	G := New(4)
-	G.AddEdges([][2]int{{0, 1}, {1, 2}, {2, 3}}...)
-
-	// cluster vide
-	assert.Empty(t, slices.Collect(G.EdgesIn(cluster.Cluster{})))
-
-	// cluster singleton : aucune arête
-	assert.Empty(t, slices.Collect(G.EdgesIn(cluster.Cluster{0: {}})))
-
-	// cluster {0,1,2} : arêtes 0-1 et 1-2, pas 2-3
-	c := cluster.New(0, 1, 2)
-	assert.Equal(t, [][2]int{{0, 1}, {1, 2}}, sortedEdgesIn(G, c))
-
-	// cluster {1,2,3} : arêtes 1-2 et 2-3, pas 0-1
-	c2 := cluster.New(1, 2, 3)
-	assert.Equal(t, [][2]int{{1, 2}, {2, 3}}, sortedEdgesIn(G, c2))
-}
-
 func TestConnectedPartsIn(t *testing.T) {
 	G := New(4)
 

@@ -143,11 +143,34 @@ func MaxInclusion(C cluster.Cluster, nug graph.Graph, nud diss.Int) cluster.Fami
 
 	f := cluster.Family{}
 
-	for e := range nug.EdgesIn(C) {
-		x, y := e[0], e[1]
-		f.Add(nud[x][y])
-
+	for x := range C.All() {
+		for y := range C.All() {
+			if nug[x].Contains(y) {
+				f.Add(nud[x][y])
+			}
+		}
 	}
 
 	return f.MaxInclusion()
+}
+
+func Bags(F cluster.Family, nug graph.Graph, nud diss.Int) cluster.Family {
+
+	b := cluster.Family{}
+
+	for C := range F.All() {
+		e := [][2]int{}
+
+		for x := range C.All() {
+			for y := range C.All() {
+				if nug[x].Contains(y) && nud[x][y].IsStrictSubsetOf(C) {
+					e = append(e, [2]int{x, y})
+				}
+			}
+		}
+		bC := graph.ConnectedPartsForEdges(len(nug), e, C)
+		b = b.Union(&bC)
+	}
+
+	return b
 }

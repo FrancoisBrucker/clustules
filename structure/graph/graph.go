@@ -86,22 +86,38 @@ func (g *Graph) Edges() iter.Seq[[2]int] {
 	}
 }
 
-func (g *Graph) EdgesIn(c set.Set[int]) iter.Seq[[2]int] {
-	return func(yield func([2]int) bool) {
-		for u := range c.All() {
-			for v := range (*g)[u] {
-				if u < v && c.Contains(v) {
-					if !yield([2]int{u, v}) {
-						return
-					}
+func ConnectedPartsTabForEdges(n int, edges [][2]int) []int {
+
+	parts := make([]int, n)
+	for i := range n {
+		parts[i] = -1
+	}
+
+	for _, uv := range edges {
+		u, v := uv[0], uv[1]
+
+		parts[u] = u
+		parts[v] = v
+
+	}
+
+	for _, uv := range edges {
+		u, v := uv[0], uv[1]
+		if parts[u] != parts[v] {
+			keep, discard := min(parts[u], parts[v]), max(parts[u], parts[v])
+			for w := range parts {
+				if parts[w] == discard {
+					parts[w] = keep
 				}
 			}
 		}
 	}
+	return parts
+
 }
 
 func (g *Graph) ConnectedPartsTab() []int {
-	return g.ConnectedPartsTabIn(nil)
+	return ConnectedPartsTabForEdges(len(*g), slices.Collect(g.Edges()))
 }
 
 func (g *Graph) ConnectedPartsTabIn(c cluster.Cluster) []int {
@@ -139,8 +155,46 @@ func (g *Graph) ConnectedPartsIn(C cluster.Cluster) cluster.Family {
 	tab := g.ConnectedPartsTabIn(C)
 	corresp := make([]cluster.Cluster, len(*g))
 
+	for i := range corresp {
+		corresp[i] = cluster.Cluster{}
+	}
+
 	for x := range C.All() {
 		corresp[tab[x]].Add(x)
+	}
+
+	f := cluster.Family{}
+
+	for _, c := range corresp {
+		if len(c) > 0 {
+			f.Add(c)
+		}
+	}
+
+	return f
+}
+
+func ConnectedPartsForEdges(n int, e [][2]int, C cluster.Cluster) cluster.Family {
+
+	tab := ConnectedPartsTabForEdges(n, e)
+
+	for x := range C.All() {
+		if tab[x] == -1 {
+			tab[x] = x
+		}
+	}
+
+	corresp := make([]cluster.Cluster, n)
+
+	for i := range corresp {
+		corresp[i] = cluster.Cluster{}
+	}
+
+	for x := range n {
+		if tab[x] > -1 {
+			corresp[tab[x]].Add(x)
+		}
+
 	}
 
 	f := cluster.Family{}

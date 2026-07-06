@@ -60,6 +60,15 @@ func (s Set[T]) IsSubsetOf(other Set[T]) bool {
 	return true
 }
 
+func (s Set[T]) IsStrictSubsetOf(other Set[T]) bool {
+	for e := range s {
+		if !other.Contains(e) {
+			return false
+		}
+	}
+	return len(s) < len(other)
+}
+
 func (s Set[T]) IsSupersetOf(other Set[T]) bool {
 	return other.IsSubsetOf(s)
 }
