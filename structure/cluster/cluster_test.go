@@ -148,6 +148,47 @@ func TestFamilyAll(t *testing.T) {
 	assert.Equal(t, 1, count)
 }
 
+func TestFamilyMaxInclusion(t *testing.T) {
+	t.Run("famille vide", func(t *testing.T) {
+		f := make(Family)
+		result := f.MaxInclusion()
+		assert.Equal(t, 0, result.Len())
+	})
+
+	t.Run("clusters disjoints — tous maximaux", func(t *testing.T) {
+		f := make(Family)
+		f.Add(New(1, 2))
+		f.Add(New(3, 4))
+		result := f.MaxInclusion()
+		assert.Equal(t, 2, result.Len())
+		assert.True(t, result.Contains(New(1, 2)))
+		assert.True(t, result.Contains(New(3, 4)))
+	})
+
+	t.Run("chaîne d'inclusions — seul le plus grand est maximal", func(t *testing.T) {
+		f := make(Family)
+		f.Add(New(1))
+		f.Add(New(1, 2))
+		f.Add(New(1, 2, 3))
+		result := f.MaxInclusion()
+		assert.Equal(t, 1, result.Len())
+		assert.True(t, result.Contains(New(1, 2, 3)))
+	})
+
+	t.Run("deux maximaux incomparables avec un non-maximal", func(t *testing.T) {
+		f := make(Family)
+		f.Add(New(1))
+		f.Add(New(1, 2))
+		f.Add(New(3, 4))
+		result := f.MaxInclusion()
+		assert.Equal(t, 2, result.Len())
+		assert.True(t, result.Contains(New(1, 2)))
+		assert.True(t, result.Contains(New(3, 4)))
+		assert.False(t, result.Contains(New(1)))
+	})
+
+}
+
 func TestFamilyString(t *testing.T) {
 	empty := make(Family)
 	assert.Equal(t, "[]", empty.String())

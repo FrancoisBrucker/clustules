@@ -145,13 +145,12 @@ func Lattice(f Family) ([][]bool, []Cluster) {
 	return matrix, elements
 }
 
-func (f *Family) Dot(label func(int) string) string {
+func (f *Family) Dot() string {
 
 	matrix, elements := Lattice(*f)
 
-	if label == nil {
-		label = func(i int) string { return fmt.Sprintf("%d", i) }
-	}
+	label := func(i int) string { return fmt.Sprintf("%d", i) }
+
 	bySize := make(map[int][]string)
 	for i, c := range elements {
 		size := c.Len()
@@ -175,4 +174,26 @@ func (f *Family) Dot(label func(int) string) string {
 	}
 	return "digraph G {\n    overlap=false\n    rankdir=BT\n\n" + strings.Join(lines, "\n") + "\n}"
 
+}
+
+func (f *Family) MaxInclusion() Family {
+
+	g := Family{}
+
+	for c := range f.All() {
+		toAdd := true
+		for d := range f.All() {
+			if len(c) < len(d) && d.IsSupersetOf(c) {
+
+				toAdd = false
+				break
+			}
+		}
+		if toAdd {
+			g.Add(c)
+		}
+
+	}
+
+	return g
 }

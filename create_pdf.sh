@@ -1,8 +1,9 @@
 #! /bin/sh
 
-dot -Tpdf -O treillis.dot
-dot -Tpdf -O non_etirable_treillis.dot
-neato -Tpdf -O non_etirable.dot
-neato -Tpdf -O non_etirable_label.dot
-neato -Tpdf -O non_etirable_nuf.dot
-neato -Tpdf -O non_etirable_nuf_label.dot
+cd out
+
+dot -Tpdf -O   orig_intervalles_treillis.dot
+dot -Tpdf -O   orig_non_etirable_treillis.dot
+neato -Tpdf -O orig_g.dot
+
+cd ..

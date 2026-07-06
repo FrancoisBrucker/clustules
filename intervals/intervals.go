@@ -42,8 +42,7 @@ func Interval(d diss.Diss, x int, y int) cluster.Cluster {
 	return c
 }
 
-func ToGraph(d diss.Int) graph.Graph {
-
+func Intervals(d diss.Int) cluster.Family {
 	F := cluster.Family{}
 	for x := range d {
 		for y := range d {
@@ -51,9 +50,16 @@ func ToGraph(d diss.Int) graph.Graph {
 		}
 	}
 
+	return F
+}
+
+func ToGraph(d diss.Int) graph.Graph {
+
+	F := Intervals(d)
+
 	G := graph.New(len(d))
 	for _, C := range F.Sorted() {
-		parts := G.ConnectedPartsIn(C)
+		parts := G.ConnectedPartsTabIn(C)
 		for x := range C {
 			for y := range C {
 				if (x < y) && (parts[x] != parts[y]) {
@@ -133,27 +139,15 @@ func MaxElements(nud diss.Int) cluster.Family {
 	return f
 }
 
-func Bags(nug graph.Graph, C cluster.Cluster) cluster.Family {
-
-	tab := nug.ConnectedPartsIn(C)
-	corresp := make([]cluster.Cluster, len(nug))
-
-	for x := range C.All() {
-		corresp[tab[x]].Add(x)
-	}
+func MaxInclusion(C cluster.Cluster, nug graph.Graph, nud diss.Int) cluster.Family {
 
 	f := cluster.Family{}
 
-	for _, c := range corresp {
-		if len(c) > 0 {
-			f.Add(c)
-		}
+	for e := range nug.EdgesIn(C) {
+		x, y := e[0], e[1]
+		f.Add(nud[x][y])
+
 	}
 
-	return f
-}
-
-func MaxInclusion(nug graph.Graph, nud diss.Int, C cluster.Cluster) cluster.Family {
-
-	return nil
+	return f.MaxInclusion()
 }

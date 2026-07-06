@@ -100,11 +100,11 @@ func (g *Graph) EdgesIn(c set.Set[int]) iter.Seq[[2]int] {
 	}
 }
 
-func (g *Graph) ConnectedParts() []int {
-	return g.ConnectedPartsIn(nil)
+func (g *Graph) ConnectedPartsTab() []int {
+	return g.ConnectedPartsTabIn(nil)
 }
 
-func (g *Graph) ConnectedPartsIn(c cluster.Cluster) []int {
+func (g *Graph) ConnectedPartsTabIn(c cluster.Cluster) []int {
 
 	n := len(*g)
 	parts := make([]int, n)
@@ -132,4 +132,24 @@ func (g *Graph) ConnectedPartsIn(c cluster.Cluster) []int {
 	}
 	return parts
 
+}
+
+func (g *Graph) ConnectedPartsIn(C cluster.Cluster) cluster.Family {
+
+	tab := g.ConnectedPartsTabIn(C)
+	corresp := make([]cluster.Cluster, len(*g))
+
+	for x := range C.All() {
+		corresp[tab[x]].Add(x)
+	}
+
+	f := cluster.Family{}
+
+	for _, c := range corresp {
+		if len(c) > 0 {
+			f.Add(c)
+		}
+	}
+
+	return f
 }

@@ -103,12 +103,12 @@ func TestConnectedPartsIn(t *testing.T) {
 	G := New(4)
 
 	// aucune arête : chaque sommet est sa propre composante
-	assert.Equal(t, []int{0, 1, 2, 3}, G.ConnectedParts())
+	assert.Equal(t, []int{0, 1, 2, 3}, G.ConnectedPartsTab())
 
 	G.AddEdges([2]int{0, 1})
 
-	assert.Equal(t, []int{0, 0, 2, 3}, G.ConnectedParts())
+	assert.Equal(t, []int{0, 0, 2, 3}, G.ConnectedPartsTab())
 
 	G.AddEdges([2]int{0, 1}, [2]int{1, 2})
-	assert.Equal(t, []int{0, -1, 2, 3}, G.ConnectedPartsIn(cluster.New(0, 2, 3)))
+	assert.Equal(t, []int{0, -1, 2, 3}, G.ConnectedPartsTabIn(cluster.New(0, 2, 3)))
 }
