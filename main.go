@@ -7,6 +7,7 @@ import (
 	"strconv"
 
 	"github.com/FrancoisBrucker/clustules/intervals"
+	"github.com/FrancoisBrucker/clustules/partition"
 	"github.com/FrancoisBrucker/clustules/structure/cluster"
 	"github.com/FrancoisBrucker/clustules/structure/correspondance"
 	"github.com/FrancoisBrucker/clustules/structure/diss"
@@ -59,9 +60,10 @@ func createAndPrint(ints diss.Int, labels correspondance.Correspondance[string],
 	return orig
 }
 
-func main() {
+func load_diss(name string) (diss.Diss, correspondance.Correspondance[string]) {
+
 	// data, err := os.ReadFile("henley.mat")
-	data, err := os.ReadFile("giraudoux.mat")
+	data, err := os.ReadFile(name)
 
 	if err != nil {
 		panic(err)
@@ -73,11 +75,40 @@ func main() {
 	if err != nil {
 		panic(err)
 	}
+
+	return d, labels
+}
+
+func intervalsFromDiss() (classif, correspondance.Correspondance[string]) {
+	d, labels := load_diss("henley.mat")
+	// d, labels := load_diss("giraudoux.mat")
+	// d, labels, _ := diss.NewDissRandom(15, 1, 5)
+
 	fmt.Println("dissimilarité d'origine :", "")
 	fmt.Println(diss.StringWithCorrespondance(d, labels))
 	fmt.Println("")
 
-	orig := createAndPrint(intervals.NewFromDiss(d), labels, "out/orig_")
+	return createAndPrint(intervals.NewFromDiss(d), labels, "out/orig_"), labels
+
+}
+
+func intervalsFromPartition() (classif, correspondance.Correspondance[string]) {
+	// P, labels := partition.NewTransitive(10, 2, 2)
+	d, labels := load_diss("henley.mat")
+	P, _ := partition.NewTransitiveFromDiss(d, 10)
+
+	fmt.Println("Partition d'origine :", "")
+	for x, part := range P {
+		fmt.Println(x, part)
+	}
+
+	return createAndPrint(intervals.NewFromTransitive(P), labels, "out/orig_"), labels
+
+}
+
+func main() {
+	// orig, labels := intervalsFromDiss()
+	orig, labels := intervalsFromPartition()
 
 	nu := createAndPrint(intervals.NUFamily(orig.i), labels, "out/nu_")
 

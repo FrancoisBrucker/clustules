@@ -120,6 +120,33 @@ func (g *Graph) ConnectedPartsTab() []int {
 	return ConnectedPartsTabForEdges(len(*g), slices.Collect(g.Edges()))
 }
 
+func (g *Graph) ConnectedParts() cluster.Family {
+	tab := g.ConnectedPartsTab()
+
+	corresp := make([]cluster.Cluster, len(*g))
+
+	for i := range corresp {
+		corresp[i] = cluster.Cluster{}
+	}
+
+	for x := range len(*g) {
+		if tab[x] == -1 {
+			tab[x] = x
+		}
+		corresp[tab[x]].Add(x)
+	}
+
+	f := cluster.Family{}
+
+	for _, c := range corresp {
+		if len(c) > 0 {
+			f.Add(c)
+		}
+	}
+
+	return f
+}
+
 func (g *Graph) ConnectedPartsTabIn(c cluster.Cluster) []int {
 
 	n := len(*g)

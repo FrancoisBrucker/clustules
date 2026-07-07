@@ -32,7 +32,8 @@ func IntervalTransitive(transitive []cluster.Family, x int, y int) cluster.Clust
 	for updated {
 		updated = false
 		for x, p := range transitive {
-			if !p.ContainsSupersetOf(s) {
+			if !s.Contains(x) && !p.ContainsSupersetOf(s) {
+
 				s.Add(x)
 				updated = true
 			}
