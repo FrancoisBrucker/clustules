@@ -2,6 +2,7 @@ package diss
 
 import (
 	"fmt"
+	"math/rand/v2"
 	"strconv"
 	"strings"
 
@@ -22,6 +23,22 @@ func New[T any](n int) dissimilarity[T] {
 	return m
 }
 
+func NewDissRandom(n int, min int, max int) (Diss, correspondance.Correspondance[string], error) {
+	d := New[float64](n)
+	labels := []string{}
+
+	for x := 0; x < n; x++ {
+		labels = append(labels, "l"+strconv.Itoa(x))
+		for y := x + 1; y < n; y++ {
+			d.SetValue(x, y, (float64)(min+rand.IntN(max-min+1)))
+		}
+
+	}
+
+	corresp, _ := correspondance.New(labels)
+
+	return d, corresp, nil
+}
 func (d dissimilarity[T]) String() string {
 	labels := make([]string, len(d))
 	for i := range labels {

@@ -62,11 +62,14 @@ func createAndPrint(ints diss.Int, labels correspondance.Correspondance[string],
 func main() {
 	// data, err := os.ReadFile("henley.mat")
 	data, err := os.ReadFile("giraudoux.mat")
+
 	if err != nil {
 		panic(err)
 	}
 
 	d, labels, err := diss.NewFromString(string(data))
+	// d, labels, err := diss.NewDissRandom(10, 1, 4)
+
 	if err != nil {
 		panic(err)
 	}

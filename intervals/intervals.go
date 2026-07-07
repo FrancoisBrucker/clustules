@@ -9,6 +9,38 @@ import (
 	"github.com/FrancoisBrucker/clustules/structure/graph/chordal"
 )
 
+func NewFromTransitive(transitive []cluster.Family) diss.Int {
+	interval := diss.New[cluster.Cluster](len(transitive))
+
+	for i := range transitive {
+		s := cluster.Cluster{}
+		s.Add(i)
+		interval.SetValue(i, i, s)
+		for j := i + 1; j < len(transitive); j++ {
+			interval.SetValue(i, j, IntervalTransitive(transitive, i, j))
+		}
+	}
+	return interval
+}
+
+func IntervalTransitive(transitive []cluster.Family, x int, y int) cluster.Cluster {
+
+	s := cluster.New(x, y)
+
+	updated := true
+
+	for updated {
+		updated = false
+		for x, p := range transitive {
+			if !p.ContainsSupersetOf(s) {
+				s.Add(x)
+				updated = true
+			}
+		}
+	}
+	return s
+}
+
 func NewFromDiss(d diss.Diss) diss.Int {
 	interval := diss.New[cluster.Cluster](len(d))
 

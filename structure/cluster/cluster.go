@@ -197,3 +197,13 @@ func (f *Family) MaxInclusion() Family {
 
 	return g
 }
+
+func (f *Family) ContainsSupersetOf(C Cluster) bool {
+
+	for c := range f.All() {
+		if c.IsSupersetOf(C) {
+			return true
+		}
+	}
+	return false
+}
