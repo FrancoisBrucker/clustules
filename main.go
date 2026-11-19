@@ -80,8 +80,8 @@ func load_diss(name string) (diss.Diss, correspondance.Correspondance[string]) {
 }
 
 func intervalsFromDiss() (classif, correspondance.Correspondance[string]) {
-	d, labels := load_diss("henley.mat")
-	// d, labels := load_diss("giraudoux.mat")
+	// d, labels := load_diss("henley.mat")
+	d, labels := load_diss("giraudoux.mat")
 	// d, labels, _ := diss.NewDissRandom(15, 1, 5)
 
 	fmt.Println("dissimilarité d'origine :", "")
@@ -107,8 +107,8 @@ func intervalsFromPartition() (classif, correspondance.Correspondance[string]) {
 }
 
 func main() {
-	// orig, labels := intervalsFromDiss()
-	orig, labels := intervalsFromPartition()
+	orig, labels := intervalsFromDiss()
+	// orig, labels := intervalsFromPartition()
 
 	nu := createAndPrint(intervals.NUFamily(orig.i), labels, "out/nu_")
 
